@@ -2,28 +2,45 @@ package exercises.linkedlist;
 
 public class RecursiveInsertLast implements InsertLastStrategy {
 
-    // For demo metrics (not required for a production impl)
-    int observedDepth = 0; // package-private so the demo can read it if needed
+    // Tracks the deepest recursion level reached during the last call
+    private int maxDepth = 0;
 
     @Override
     public ListNode insertLast(ListNode head, int value) {
-        // TODO: implement recursively.
-        // Hints:
-        // - Base (empty list): create and return new node.
-        // - Base (tail reached): append new node and return head.
-        // - Recurse: head.next = insertLast(head.next, value); return head;
-        // - OPTIONAL: track recursion depth (e.g., param or field).
-        return head; // placeholder
+        // start at depth 1 each time this public method is called
+        maxDepth = 0;
+        ListNode result = insertLastHelper(head, value, 1);
+        System.out.println("Observed depth: " + maxDepth);
+        return result;
     }
 
-    // Simple memory helpers for the demo
+    private ListNode insertLastHelper(ListNode head, int value, int depth) {
+        // keep the maximum depth seen so far
+        maxDepth = Math.max(maxDepth, depth);
+
+        // Base: empty list -> create first node
+        if (head == null) {
+            return new ListNode(value);
+        }
+
+        // Base: tail reached -> append and return head
+        if (head.next == null) {
+            head.next = new ListNode(value);
+            return head;
+        }
+
+        // Recurse forward one node, increasing depth
+        head.next = insertLastHelper(head.next, value, depth + 1);
+        return head;
+    }
+
     private static long usedBytes() {
         Runtime rt = Runtime.getRuntime();
         return rt.totalMemory() - rt.freeMemory();
     }
 
     public static void main(String[] args) {
-        int n = args.length > 0 ? Integer.parseInt(args[0]) : 50000;
+        int n = args.length > 0 ? Integer.parseInt(args[0]) : 5000;
         int trials = args.length > 1 ? Integer.parseInt(args[1]) : 3;
 
         // Build an initial list (iteratively to avoid skewing recursion demo)
@@ -60,7 +77,7 @@ public class RecursiveInsertLast implements InsertLastStrategy {
             System.out.printf(
                     "Trial %d: time=%.3f ms, usedBefore=%.2f MB, usedAfter=%.2f MB, approxDepth=%d%n",
                     t, (end - start) / 1e6, beforeMem / (1024.0 * 1024.0), afterMem / (1024.0 * 1024.0),
-                    strat.observedDepth
+                    strat.maxDepth
             );
         }
     }

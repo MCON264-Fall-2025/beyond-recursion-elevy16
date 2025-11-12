@@ -5,6 +5,9 @@ public class RecursiveFibonacci implements FibonacciStrategy {
     @Override
     public long compute(int n) {
         //TODO implement using recursive approach
+        if (n == 0 || n == 1)
+            return n;
+        return compute(n-1) + compute(n-2);
     }
 
     public static void main(String[] args) {
